@@ -1,38 +1,57 @@
-document.getElementById("reviewForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    
-    const name = document.getElementById("name").value;
-    const review = document.getElementById("review").value;
-    
-    // Retrieve current reviews from localStorage
-    const reviews = JSON.parse(localStorage.getItem("reviews") || "[]");
-    
-    // Add new review
-    reviews.push({ name, review });
-    
-    // Save updated reviews back to localStorage
-    localStorage.setItem("reviews", JSON.stringify(reviews));
-    
-    // Clear the form and reload the reviews
-    document.getElementById("reviewForm").reset();
-    loadReviews();
-});
+// Load existing reviews from localStorage on page load
+window.onload = function() {
+    displayReviews();
+};
 
-function loadReviews() {
-    // Retrieve reviews from localStorage
-    const reviews = JSON.parse(localStorage.getItem("reviews") || "[]");
-    
-    const reviewsContainer = document.getElementById("reviews");
-    reviewsContainer.innerHTML = "";
-    
+function submitReview() {
+    const name = document.getElementById('reviewerName').value.trim();
+    const text = document.getElementById('reviewText').value.trim();
+
+    if (name === "" || text === "") {
+        alert("Please enter your name and review.");
+        return;
+    }
+
+    const newReview = {
+        name: name,
+        text: text,
+        date: new Date().toLocaleString()
+    };
+
+    // Get existing reviews from localStorage or create an empty array if none exist
+    let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+
+    // Add the new review
+    reviews.push(newReview);
+
+    // Save the updated reviews back to localStorage
+    localStorage.setItem('reviews', JSON.stringify(reviews));
+
+    // Clear input fields
+    document.getElementById('reviewerName').value = '';
+    document.getElementById('reviewText').value = '';
+
+    // Display updated reviews
+    displayReviews();
+}
+
+function displayReviews() {
+    const reviewsContainer = document.getElementById('reviewsList');
+    reviewsContainer.innerHTML = '';
+
+    // Get reviews from localStorage
+    const reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+
     // Display each review
-    reviews.forEach(({ name, review }) => {
-        const reviewElement = document.createElement("div");
-        reviewElement.classList.add("review");
-        reviewElement.innerHTML = `<h4>${name}</h4><p>${review}</p>`;
+    reviews.forEach(review => {
+        const reviewElement = document.createElement('div');
+        reviewElement.classList.add('review');
+
+        reviewElement.innerHTML = `
+            <p class="review-name">${review.name} <span class="review-date">(${review.date})</span></p>
+            <p class="review-text">${review.text}</p>
+        `;
+
         reviewsContainer.appendChild(reviewElement);
     });
 }
-
-// Load reviews on page load
-loadReviews();
